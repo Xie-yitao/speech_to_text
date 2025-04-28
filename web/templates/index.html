@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语音转文字 & 纠错系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .params {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <h1>语音转文字 & 纠错系统</h1>
+    
+    <div class="container">
+        <div>
+            <button id="startBtn" class="btn">开始录音</button>
+            <button id="pauseBtn" class="btn">暂停</button>
+            <button id="stopBtn" class="btn">停止录音</button>
+            <button id="translateBtn" class="btn">开始翻译</button>
+            <button id="uploadBtn" class="btn">上传文件</button>
+            <button id="clearBtn" class="btn">清除文本</button>
+        </div>
+        
+        <div class="params">
+            <h3>参数设置</h3>
+            <div>
+                <label for="api_key">API Key:</label>
+                <input type="text" id="api_key" placeholder="输入API Key">
+            </div>
+            <div>
+                <label for="api_base_url">API Base URL:</label>
+                <input type="text" id="api_base_url" placeholder="输入API Base URL">
+            </div>
+            <div>
+                <label for="model">纠错模型:</label>
+                <select id="model">
+                    <option value="Qwen/Qwen2.5-7B-Instruct">Qwen/Qwen2.5-7B-Instruct</option>
+                    <option value="其他模型">其他模型</option>
+                </select>
+                <input type="text" id="custom_model" style="display: none;" placeholder="输入自定义模型">
+            </div>
+            <div>
+                <label for="s2t_model">语音转文字模型:</label>
+                <select id="s2t_model">
+                    <option value="whisper-base">whisper-base</option>
+                    <option value="其他模型">其他模型</option>
+                </select>
+                <input type="text" id="custom_s2t_model" style="display: none;" placeholder="输入自定义模型">
+            </div>
+            <button id="saveParamsBtn" class="btn">保存参数</button>
+        </div>
+        
+        <div class="output">
+            <h3>输出结果</h3>
+            <div id="originalText"></div>
+            <div id="correctedText"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const translateBtn = document.getElementById('translateBtn');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const saveParamsBtn = document.getElementById('saveParamsBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            
+            const originalTextEl = document.getElementById('originalText');
+            const correctedTextEl = document.getElementById('correctedText');
+            
+            const modelSelect = document.getElementById('model');
+            const customModelInput = document.getElementById('custom_model');
+            const s2tModelSelect = document.getElementById('s2t_model');
+            const customS2tModelInput = document.getElementById('custom_s2t_model');
+
+            let currentFilePath = '';
+
+            // 录音控制
+            startBtn.addEventListener('click', function() {
+                fetch('/start_recording', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.status);
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+            
+            pauseBtn.addEventListener('click', function() {
+                fetch('/pause_recording', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.status);
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+            
+            stopBtn.addEventListener('click', function() {
+                fetch('/stop_recording', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.status);
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+            
+            // 文件上传
+            uploadBtn.addEventListener('click', function() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'audio/*';
+                input.onchange = function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const formData = new FormData();
+                        formData.append('audio_file', file);
+                        
+                        fetch('/upload_audio', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            alert(data.status);
+                            if (data.path) {
+                                currentFilePath = data.path;
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                    }
+                };
+                input.click();
+            });
+            
+            // 参数设置
+            saveParamsBtn.addEventListener('click', function() {
+                const api_key = document.getElementById('api_key').value;
+                const api_base_url = document.getElementById('api_base_url').value;
+                const model = document.getElementById('model').value === '其他模型' 
+                              ? document.getElementById('custom_model').value 
+                              : document.getElementById('model').value;
+                const s2t_model = document.getElementById('s2t_model').value === '其他模型' 
+                                 ? document.getElementById('custom_s2t_model').value 
+                                 : document.getElementById('s2t_model').value;
+                
+                fetch('/set_parameters', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        api_key,
+                        api_base_url,
+                        model,
+                        s2t_model
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.status);
+                })
+                .catch(error => console.error('Error:', error));
+            });
+            
+            // 清除文本按钮
+            clearBtn.addEventListener('click', function() {
+                fetch('/clear_text', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        originalTextEl.innerHTML = `<strong>原文：</strong> ${data.original_text}`;
+                        correctedTextEl.innerHTML = `<strong>纠正后：</strong> ${data.corrected_text}`;
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+            
+            // 翻译按钮
+            translateBtn.addEventListener('click', function() {
+                fetch('/translate', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        originalTextEl.innerHTML = `<strong>原文：</strong> ${data.original_text}`;
+                        correctedTextEl.innerHTML = `<strong>纠正后：</strong> ${data.corrected_text}`;
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+            
+            // 模型选择交互
+            modelSelect.addEventListener('change', function() {
+                if (modelSelect.value === '其他模型') {
+                    customModelInput.style.display = 'inline-block';
+                } else {
+                    customModelInput.style.display = 'none';
+                }
+            });
+            
+            s2tModelSelect.addEventListener('change', function() {
+                if (s2tModelSelect.value === '其他模型') {
+                    customS2tModelInput.style.display = 'inline-block';
+                } else {
+                    customS2tModelInput.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
