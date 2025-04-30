@@ -76,10 +76,8 @@ python -m whisper --model base --download_dir ./models
 
 ## 注意事项
 
-- 确保您已下载所需的 Whisper 模型
 - 为获得最佳效果，请在安静的环境中录制
 - 应用程序需要互联网连接才能调用 Qwen API
-- 音频文件必须为 WAV 格式才能获得最佳处理效果
 - 如出现`FileNotFoundError: [WinError 2] 系统找不到指定的文件。`错误请下载`ffmpeg-2025-04-21-git-9e1162bdf1-essentials_build.7z`解压并加入环境变量中。
 
 
