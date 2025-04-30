@@ -25,8 +25,6 @@ model = None
 current_s2t_model = "whisper-base"
 
 # 默认API配置
-# current_api_key = "sk-sctfllzzpycoyayuykryadftvxbtxtmcjpiueleaiasamemx"
-# current_api_base_url = "https://api.siliconflow.cn/v1"
 current_api_key = ''
 current_api_base_url = ''
 current_model = "Qwen/Qwen2.5-7B-Instruct"
