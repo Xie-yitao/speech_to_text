@@ -62,7 +62,7 @@ python -m whisper --model base --download_dir ./models
 ### 使用方法
 
 1. 进入对应文件目录`cd qt`，启动应用程序：`python speech_translator.py`
-2. 在参数字段中输入您的 Qwen API 密钥和基础 URL
+2. 在参数字段中输入您的 Qwen API 密钥和基础 URL，建议使用硅基流动，可以免费调用一些基础模型。基础 URL为：https://api.siliconflow.cn/v1
 3. 从下拉菜单中选择您偏好的校正模型和语音转文本模型，或者在"Correction Model"字段中输入自定义模型名称
 4. 点击“开始录制”按钮开始录制音频
 5. 点击“暂停录制”暂停录制，“停止录制”停止录制
@@ -127,10 +127,8 @@ python -m whisper --model base --download_dir ./models
 
 ## 注意事项
 
-- 确保您已下载所需的 Whisper 模型
 - 为获得最佳效果，请在安静的环境中录制
 - 应用程序需要互联网连接才能调用 Qwen API
-- 音频文件必须为 WAV 格式才能获得最佳处理效果
 - 如果出现 `FileNotFoundError: [WinError 2] 系统找不到指定的文件。` 错误，请下载 [FFmpeg Essentials Build](https://ffmpeg.org/download.html) 并将其目录添加到环境变量中。
 
 ## 开源协议
