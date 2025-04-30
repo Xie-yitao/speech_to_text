@@ -61,7 +61,7 @@ python -m whisper --model base --download_dir ./models
 
 ### 使用方法
 
-1. 启动应用程序：`python main.py`
+1. 进入对应文件目录`cd qt`，启动应用程序：`python speech_translator.py`
 2. 在参数字段中输入您的 Qwen API 密钥和基础 URL
 3. 从下拉菜单中选择您偏好的校正模型和语音转文本模型，或者在"Correction Model"字段中输入自定义模型名称
 4. 点击“开始录制”按钮开始录制音频
